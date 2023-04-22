@@ -1,0 +1,46 @@
+library(dplyr)
+library(shiny)
+library(shinythemes)
+
+crime <- read.csv("https://raw.githubusercontent.com/karolo89/ShinyApp_PortlandCrime/main/Data/crime.csv")%>%
+  select(-X)
+
+
+
+colnames(crime)[13] <- "Hour"
+
+ui <- fluidPage(
+  theme = shinytheme("flatly"),
+  titlePanel("Crime Reported in Portland, OR"),
+  
+  mainPanel(
+    tabsetPanel(
+      type = "tabs",
+      tabPanel(
+        title = "Table",
+        icon = icon("table"),
+        tags$br(),
+        DT::DTOutput("table")
+      ),
+    
+    tabPanel("Day & Time", 
+             plotOutput("plot")
+    ),
+    checkboxInput(
+      inputId = "themeToggle",
+      label = icon("sun")
+    )
+  )
+  )
+  
+)
+
+server <- function(input, output) {
+  output$table <- DT::renderDT({
+    crime
+  })
+
+  
+}
+
+shinyApp(ui, server)
