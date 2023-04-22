@@ -1,0 +1,82 @@
+library(dplyr)
+library(shiny)
+library(shinythemes)
+
+ui <- fluidPage(
+  theme = shinytheme("darkly"),
+  mainPanel(
+    tabsetPanel(
+      type = "tabs",
+      tabPanel(
+        title = "Table",
+        icon = icon("table"),
+        tags$br(),
+        DT::DTOutput("table")
+      )
+    ),
+    checkboxInput(
+      inputId = "themeToggle",
+      label = icon("sun")
+    )
+  ),
+  tags$script(
+    "
+        // define css theme filepaths
+        const themes = {
+            dark: 'shinythemes/css/darkly.min.css',
+            light: 'shinythemes/css/flatly.min.css'
+        }
+
+        // function that creates a new link element
+        function newLink(theme) {
+            let el = document.createElement('link');
+            el.setAttribute('rel', 'stylesheet');
+            el.setAttribute('text', 'text/css');
+            el.setAttribute('href', theme);
+            return el;
+        }
+
+        // function that remove <link> of current theme by href
+        function removeLink(theme) {
+            let el = document.querySelector(`link[href='${theme}']`)
+            return el.parentNode.removeChild(el);
+        }
+
+        // define vars
+        const darkTheme = newLink(themes.dark);
+        const lightTheme = newLink(themes.light);
+        const head = document.getElementsByTagName('head')[0];
+        const toggle = document.getElementById('themeToggle');
+
+        // define extra css and add as default
+        const extraDarkThemeCSS = '.dataTables_length label, .dataTables_filter label, .dataTables_info {       color: white!important;} .paginate_button { background: white!important;} thead { color: white;}'
+        const extraDarkThemeElement = document.createElement('style');
+        extraDarkThemeElement.appendChild(document.createTextNode(extraDarkThemeCSS));
+        head.appendChild(extraDarkThemeElement);
+
+
+        // define event - checked === 'light'
+        toggle.addEventListener('input', function(event) {
+            // if checked, switch to light theme
+            if (toggle.checked) {
+                removeLink(themes.dark);
+                head.removeChild(extraDarkThemeElement);
+                head.appendChild(lightTheme);
+            }  else {
+                // else add darktheme
+                removeLink(themes.light);
+                head.appendChild(extraDarkThemeElement)
+                head.appendChild(darkTheme);
+            }
+        })
+        "
+  )
+)
+
+server <- function(input, output) {
+  output$table <- DT::renderDT({
+    iris
+  })
+}
+
+shinyApp(ui, server)
