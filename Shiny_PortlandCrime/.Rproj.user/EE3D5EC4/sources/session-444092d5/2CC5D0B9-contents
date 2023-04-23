@@ -1,0 +1,212 @@
+---
+title: "Tables"
+author: "Karol Orozco"
+date: 02/06/2023
+image: featured.png
+---
+
+# Meet the Palmer penguins
+
+![Palmer penguins](featured.png) The Palmer Archipelago penguins. Artwork by @allison_horst.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+
+library(tidyverse)
+library(dplyr)
+library(palmerpenguins)
+
+
+# prep data
+penguins <- penguins %>%
+  drop_na()
+
+
+table_count <- penguins%>%
+  group_by(species, sex)%>%
+  summarize(count= n())%>%
+  select(species, sex, count)
+
+df <- penguins%>%
+  group_by(species, sex) %>% 
+  summarize(across(where(is.numeric), mean, na.rm = TRUE))%>% 
+  dplyr::mutate_if(is.numeric, round, 2)
+
+
+table <- dplyr::left_join(df, table_count, by= c("species", "sex"))
+
+table<- table%>%
+  select("species", "sex", "count", "bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g")%>%
+  rename(Culmen_Length = bill_length_mm , 
+         Culmen_Depth = bill_depth_mm,  
+         Flipper_Length= flipper_length_mm, 
+         Body_Mass= body_mass_g,
+         Count = count,
+         Sex= sex,
+         Penguin= species)
+```
+
+## Riding Tables with DT
+
+```{r}
+library(DT)
+
+datatable(table,
+
+extensions = c('Select', 'Buttons'), options = list(
+    select = list(style = 'os', items = 'row'),
+    dom = 'Blfrtip',
+    rowId = 0,
+    buttons = c('selectAll', 'selectNone', 'selectRows', 'selectColumns', 'selectCells')
+  ),
+  selection = 'none',
+    
+          caption = htmltools::tags$caption(
+    style = 'caption-side: bottom; text-align: center;',
+    'Table 1: ', htmltools::em('Data were collected and made available by Dr. Kristen Gorman and the Palmer Station, Antarctica LTER, a member of the Long Term Ecological Research Network.')
+  ))
+
+```
+
+## Riding Tables with gt & gtExtra
+
+Great Resource: [Modify the table output options](https://gt.rstudio.com/reference/tab_options.html)
+
+```{r}
+
+library(gt)
+library(gtExtras)
+library(downloadthis)
+library(emo)
+
+attach_excel <- table %>%
+  download_this(
+    output_name = "Penguins",
+    output_extension = ".xlsx", # Excel file type
+    button_label = "Download Excel",
+    button_type = "primary", # change button type
+  )
+
+table%>%
+  group_by(Penguin)%>%
+  gt(rowname_col = "Sex") %>%
+
+  tab_header(
+    title = md(paste0(
+      emo::ji("penguin"), emo::ji("penguin"), emo::ji("penguin"),
+      "Penguins are fun to summarize!",
+      emo::ji("penguin"), emo::ji("penguin"), emo::ji("penguin"))),
+  # Use markdown syntax with md()
+    subtitle = md("The palmerpenguins: Palmer Archipelago (Antarctica) penguin data"))%>%
+  
+  
+tab_footnote(
+    footnote = "Measurements in millimeters (mm)", 
+    locations = cells_column_labels(
+      columns = 4:6 # note
+      ))%>% 
+  
+tab_footnote(
+    footnote = "Measurements in gram (g)", 
+    locations = cells_column_labels(
+      columns = 7:7 # note
+      ))%>% 
+  tab_source_note(source_note = "Data were collected and made available by Dr. Kristen Gorman and the Palmer Station, Antarctica LTER, a member of the Long Term Ecological Research Network. | Table: Karol Orozco")%>% 
+  
+ tab_options(
+    row_group.border.top.width = px(3),
+    row_group.border.top.color = "gray",
+    row_group.border.bottom.color = "gray",
+    
+    table_body.hlines.color = "white",
+    table.border.top.color = "white",
+    table.border.top.width = px(3),
+    table.border.bottom.color = "white",
+    table.border.bottom.width = px(3),
+    
+    column_labels.border.bottom.color = "gray",
+    column_labels.border.bottom.width = px(2),
+    column_labels.background.color = "black",
+    
+    heading.background.color = "#eebf00",
+    heading.border.bottom.color = "#eebd00",
+    heading.border.bottom.width = "5px")%>% 
+  
+  tab_style(
+    style = cell_text(color = "white"),
+    locations = list(
+      cells_row_groups(),
+      cells_column_labels(everything())))%>%
+  
+   tab_style(
+    locations = cells_row_groups(groups = "Adelie"),
+    style = cell_fill(color = "darkorange"))%>%
+  
+   tab_style(
+    locations = cells_row_groups(groups = "Chinstrap"),
+    style = cell_fill(color = "darkorchid"))%>%
+  
+   tab_style(
+    locations = cells_row_groups(groups = "Gentoo"),
+    style = cell_fill(color = "cyan4"))%>%
+
+  
+  tab_source_note(attach_excel)
+
+
+```
+
+### Adding Images
+
+```{r}
+df3 <- penguins%>%
+  group_by(species) %>% 
+  summarize(across(where(is.numeric), mean, na.rm = TRUE))%>% 
+  dplyr::mutate_if(is.numeric, round, 2)  %>%
+  rename(Culmen_Length = bill_length_mm , 
+         Culmen_Depth = bill_depth_mm,  
+         Flipper_Length= flipper_length_mm, 
+         Body_Mass= body_mass_g,
+         Penguin= species)%>%
+  mutate(Photo = case_when(
+    str_detect(Penguin,'Adelie') ~ "https://github.com/karolo89/karolo_website/blob/main/viz/Table/adellie.png?raw=true", 
+    str_detect(Penguin,'Chinstrap') ~ "https://github.com/karolo89/karolo_website/blob/main/viz/Table/chinstrap.png?raw=true",
+    str_detect(Penguin,'Gentoo') ~ "https://github.com/karolo89/karolo_website/blob/main/viz/Table/gentoo.png?raw=true"))%>%
+  
+  select("Photo", "Penguin", "Culmen_Length", "Culmen_Depth", "Flipper_Length", "Body_Mass")
+
+df3
+```
+
+```{r}
+df3 %>%
+  gt()%>%
+  tab_header(
+    title =  "Penguins are fun to summarize!")%>%
+  gtExtras::gt_theme_nytimes()%>%
+  # Add flag images
+  gtExtras::gt_img_rows(columns = Photo, height = 20)%>%
+  opt_align_table_header(align = "center")%>% 
+  tab_source_note(source_note = "Data were collected and made available by Dr. Kristen Gorman and the Palmer Station, Antarctica LTER, a member of the Long Term Ecological Research Network. | Table: Karol Orozco")%>% 
+  
+ tab_options(
+
+    table_body.hlines.color = "white",
+    table.border.top.color = "white",
+    table.border.top.width = px(3),
+    table.border.bottom.color = "white",
+    table.border.bottom.width = px(3),
+    
+    column_labels.border.bottom.color = "gray",
+    column_labels.border.bottom.width = px(2),
+    column_labels.background.color = "black",
+    
+    heading.background.color = "cyan4",
+    heading.border.bottom.color = "cyan4",
+    heading.border.bottom.width = "5px")
+ 
+```
+
+## Reference
+
+Horst AM, Hill AP, Gorman KB (2020). palmerpenguins: Palmer Archipelago (Antarctica) penguin data. R package version 0.1.0. https://allisonhorst.github.io/palmerpenguins/. doi: 10.5281/zenodo.3960218.

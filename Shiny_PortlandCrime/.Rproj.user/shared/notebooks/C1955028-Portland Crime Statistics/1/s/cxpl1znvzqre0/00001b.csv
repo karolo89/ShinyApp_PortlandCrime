@@ -1,7 +1,0 @@
-"0",""
-"0","## Data from the Porland Police Bureau- https://public.tableau.com/app/profile/portlandpolicebureau/viz/New_Monthly_Neighborhood/MonthlyOffenseTotals"
-"0",""
-"0","## Metadata: https://www.portland.gov/police/open-data/crime-statistics#toc-metadata-for-offense-open-data"
-"0",""
-"0","crime<- read.csv(""https://raw.githubusercontent.com/karolo89/Raw_Data/main/CrimeData-2023.csv"")%>%select(-Address)"
-"0","head(crime)"

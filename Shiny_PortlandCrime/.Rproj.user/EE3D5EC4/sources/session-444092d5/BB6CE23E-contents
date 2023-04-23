@@ -1,0 +1,91 @@
+library(shiny)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(DT)
+library(shinythemes)
+library(thematic)
+
+source(calldata.R)
+
+
+thematic::thematic_shiny()
+
+
+
+# Define the user interface
+ui <- fluidPage(theme = shinytheme("flatly"),
+                # Application title
+                
+                titlePanel("Dispatched Calls for Service- Portland Police Bureau"),
+                # sidebar
+                sidebarLayout(
+                  sidebarPanel(
+                    dateRangeInput(inputId = "date",
+                                   label   = "Enter start range",
+                                   start   = "2022-01-01",
+                                   end     = "2023-03-01",
+                                   min     = "2022-01-01",
+                                   max     = "2023-03-01"),
+                    
+                    selectInput(inputId  = "FinalCallGroup",
+                                label    = "Select Call Type",
+                                choices  = group_month$FinalCallGroup,
+                                multiple = TRUE,
+                                selected = "Disorder"),
+                    plotOutput("density")),
+                  # main panel
+                  mainPanel(
+                    plotOutput(outputId = "plot"),
+                    dataTableOutput(outputId = "table")
+                  )
+                )
+)
+
+
+# Create server function
+
+server <- function(input, output) {
+  GM <- reactive({ group_month |> 
+      filter(date >= input$date[1], 
+             date <= input$date[2]) |> 
+      filter(FinalCallGroup == input$FinalCallGroup)
+  })
+  TC <- reactive({  calls |> 
+      filter(FinalCallGroup == input$FinalCallGroup) |> 
+      arrange(date)})
+  
+  output$plot <- renderPlot({
+    GM() |> 
+      ggplot(aes(x = date, y = num, color = FinalCallGroup)) +
+      geom_line() +
+      geom_point(size = 2) +
+      scale_color_viridis_d()+
+      
+      scale_y_continuous(limits = c(0, 10000), labels = scales::number_format(scale = .001, suffix = "K"))+
+      
+      coord_cartesian(expand = F) +
+      
+      labs(title= "Total Calls by Group, 2022-23",
+           x="",
+           y= "")+ 
+      theme_line
+  })
+  
+  output$table <- DT::renderDataTable({
+    TC() |> 
+      datatable(options = list(scrollX = T))
+  })
+  output$density <- renderPlot({
+    TC() |> ggplot() + aes(y=ResponseTime_sec, x=FinalCallGroup, color=FinalCallGroup) +
+      geom_boxplot()
+  })
+  
+}
+
+
+
+
+
+# Build and run the application
+shinyApp(ui = ui, server = server)

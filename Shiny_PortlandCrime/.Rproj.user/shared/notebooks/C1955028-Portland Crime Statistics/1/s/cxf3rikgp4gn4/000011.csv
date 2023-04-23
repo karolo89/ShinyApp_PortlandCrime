@@ -1,0 +1,8 @@
+"0","month_call <- calls %>%"
+"0","  group_by(date, Year, FinalCallGroup)%>%"
+"0","    filter(FinalCallGroup!= ""NULL"") %>%"
+"0","    summarise(count = n()) %>%"
+"0","    arrange(desc(count))%>%"
+"0","  na.omit()"
+"2","`summarise()` has grouped output by 'date', 'Year'. You can override using the `.groups` argument."
+"0","head(month_call)"

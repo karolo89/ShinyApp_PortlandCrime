@@ -22,6 +22,22 @@ library(zoo)
 font_add_google(name = "Red Hat Display", family = "redhat")
 font_add_google(name = "Cherry Cream Soda", family = "cherry")
 showtext_auto()
+
+theme_line <-  theme(
+        legend.title = element_blank(), 
+        legend.position = "bottom",
+           panel.background = element_rect(colour = "#fdf8ec", fill = "#fdf8ec"),
+         plot.background = element_rect(colour = "#fdf8ec", fill = "#fdf8ec"),
+        legend.background = element_rect(colour = "#fdf8ec", fill = "#fdf8ec"), 
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        plot.title = element_text(family = "cherry", hjust = 0.5, size = 14, face = "bold", 
+                                  margin = margin(t = 10, b = 10)),
+
+        axis.text = element_text(family = "dosis"),
+        plot.margin = unit(c(0.5, 0.8, 0.5, 0.5), "cm"), 
+        panel.grid.major = element_line(colour = "#DEDEDE"), 
+        panel.grid.minor = element_blank())
+
 ```
 
 ```{r}
@@ -89,7 +105,7 @@ day_weekp <- ggplot(day_week) +
   aes(x = weekday, y = time) +
     geom_tile(aes(fill=count), colour = "white") +
   scale_fill_viridis(name="# Offenses", trans = 'reverse')+
-  
+  scale_viridis(name="# Offenses", trans = 'reverse')+
    ##  scale_fill_distiller(name= "# Offenses", palette = "YlGnBu", direction = 1) +
 
    scale_x_discrete(breaks = 0:6,
@@ -214,6 +230,7 @@ ggplot(aes(x= fct_rev(fct_reorder(FinalCallGroup, count)), y= count))+
 
   p1_calls
 ```
+
 ```{r}
 font_add_google(name = "Bungee Shade", family = "bungee")
 font_add_google(name = "Dosis", family = "dosis")
@@ -237,22 +254,8 @@ line_calls <- ggplot(group_month, aes(date, num, colour= FinalCallGroup, group= 
 
   labs(title= "Total Calls by Group, 2022-23",
        x="",
-       y= "")+ 
-  theme(
-        legend.title = element_blank(), 
-        legend.position = "bottom",
-           panel.background = element_rect(colour = "#fdf8ec", fill = "#fdf8ec"),
-         plot.background = element_rect(colour = "#fdf8ec", fill = "#fdf8ec"),
-        legend.background = element_rect(colour = "#fdf8ec", fill = "#fdf8ec"), 
-        legend.key = element_rect(fill = "transparent", colour = "transparent"),
-        plot.title = element_text(family = "cherry", hjust = 0.5, size = 14, face = "bold", 
-                                  margin = margin(t = 10, b = 10)),
-
-        axis.text = element_text(family = "dosis"),
-        plot.margin = unit(c(0.5, 0.8, 0.5, 0.5), "cm"), 
-        panel.grid.major = element_line(colour = "#DEDEDE"), 
-        panel.grid.minor = element_blank())
-
+       y= "")+ theme_line
+ 
 line_calls
 ```
 

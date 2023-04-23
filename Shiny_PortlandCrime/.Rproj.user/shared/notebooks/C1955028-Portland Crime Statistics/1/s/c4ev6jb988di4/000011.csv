@@ -1,0 +1,6 @@
+"0","## Convert string to time format"
+"0","crime$OccurTime<- format(substr(as.POSIXct(sprintf(""%04.0f"",crime$OccurTime), format='%H%M'), 12, 16))"
+"0",""
+"0","crime$time <- as.numeric( sub(""\\D*(\\d+).*"", ""\\1"", crime$OccurTime))"
+"0",""
+"0","head(crime)"

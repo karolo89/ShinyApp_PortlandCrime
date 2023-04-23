@@ -10,6 +10,7 @@ library(viridis)
 library(zoo)
 library(DT)
 library(shinythemes)
+library(plotly)
 
 
 # Create server function
@@ -22,8 +23,9 @@ server <- function(input, output) {
   showtext_auto()
   ##Dispatched Calls for Service by Portland Police Bureau
   ##  https://public.tableau.com/app/profile/portlandpolicebureau/viz/DispatchedCallsforService/DispatchedCalls
-  
-  dispatch_calls2023 <- read.csv("https://raw.githubusercontent.com/karolo89/Raw_Data/main/dispatchedcalls_opendata_2023_1.csv")%>%
+  reactive({
+    
+    dispatch_calls2023 <- read.csv("https://raw.githubusercontent.com/karolo89/Raw_Data/main/dispatchedcalls_opendata_2023_1.csv")%>%
     select(-ReportDateTime)%>%
     mutate(Priority = as.factor(Priority))%>%
     mutate(FinalCallCategory = as.factor(FinalCallCategory)) %>%
@@ -61,18 +63,18 @@ server <- function(input, output) {
     mutate(date= as.Date(date))%>%
     arrange(desc(num))%>%
     top_n(5)
+  })
   
   
-  output$plot <- renderPlot({
+  output$plot <- renderPlotly({
     
     group_month %>% 
       filter(startdate >= input$date[1], 
              startdate <= input$date[2]) %>% 
       
       filter(FinalCallGroup == input$FinalCallGroup) %>% 
-      ggplot(aes(x = startdate, y = count)) +
-      geom_line() +
-      geom_point(size = 2) +
+      plot_ly(aes(x = startdate, y = count, type= "lines+markers")) +
+
       scale_color_viridis_d()+
       
       scale_y_continuous(limits = c(0, 10000), labels = scales::number_format(scale = .001, suffix = "K"))+
@@ -105,9 +107,13 @@ server <- function(input, output) {
 
 # Define the user interface
 ui <- fluidPage(theme = shinytheme("flatly"),
+               
                 # Application title
                 
                 titlePanel("Dispatched Calls for Service- Portland Police Bureau"),
+                
+                br(),
+                
                 # sidebar
                 sidebarLayout(
                   sidebarPanel(
