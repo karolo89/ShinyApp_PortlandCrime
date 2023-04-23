@@ -3,24 +3,24 @@
     "path": "C:/Users/karol/Desktop/Communicating with Data/KarolO_PdxCrimes/app.R",
     "project_path": null,
     "type": "r_source",
-    "hash": "0",
+    "hash": "114691133",
     "contents": "",
-    "dirty": true,
+    "dirty": false,
     "created": 1682199652980.0,
     "source_on_save": false,
     "relative_order": 2,
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "15,31",
-        "scrollLine": "1"
+        "cursorPosition": "76,0",
+        "scrollLine": "48"
     },
     "folds": "",
-    "lastKnownWriteTime": 1682223801,
+    "lastKnownWriteTime": 1682230480,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1682223846071,
+    "last_content_update": 1682230480843,
     "read_only": false,
     "read_only_alternatives": []
 }

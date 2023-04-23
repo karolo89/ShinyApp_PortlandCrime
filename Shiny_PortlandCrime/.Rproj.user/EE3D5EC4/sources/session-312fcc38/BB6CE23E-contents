@@ -1,49 +1,86 @@
-library(dplyr)
+#load packages
+library(ggpubr)
+library(ggplot2)
+library(plotly)
 library(shiny)
-library(shinythemes)
+library(dplyr)
+library(shinydashboard)
+library(DT)
 
-crime <- read.csv("https://raw.githubusercontent.com/karolo89/ShinyApp_PortlandCrime/main/Data/crime.csv")%>%
-  select(-X)
+##Dispatched Calls for Service by Portland Police Bureau
+##  https://public.tableau.com/app/profile/portlandpolicebureau/viz/DispatchedCallsforService/DispatchedCalls
 
-crime_time <- readRDS(gzcon(url("https://github.com/karolo89/ShinyApp_PortlandCrime/raw/main/Data/day_week.rds")))
+dispatch_calls2023 <- read.csv("https://raw.githubusercontent.com/karolo89/Raw_Data/main/dispatchedcalls_opendata_2023_1.csv")%>%
+  select(-ReportDateTime)%>%
+  mutate(Priority = as.factor(Priority))%>%
+  mutate(FinalCallCategory = as.factor(FinalCallCategory)) %>%
+  mutate(FinalCallGroup = as.factor(FinalCallGroup))%>%
+  mutate(Neighborhood = as.factor(Neighborhood))%>%
+  mutate(ReportMonthYear = mdy(ReportMonthYear))%>%
+  mutate_if(is.character, as.double)%>%
+  separate("ReportMonthYear", c("Year", "Month", "Day"), sep = "-")%>%
+  select(-Day)%>%
+  mutate(date= as.yearmon(paste(Year, Month), "%Y %m"))
+
+dispatch_calls2022 <-read.csv("https://raw.githubusercontent.com/karolo89/Raw_Data/main/dispatchedcalls_opendata_2022_0.csv")%>%
+  mutate(Priority = as.factor(Priority))%>%
+  mutate(FinalCallCategory = as.factor(FinalCallCategory)) %>%
+  mutate(FinalCallGroup = as.factor(FinalCallGroup))%>%
+  mutate(Neighborhood = as.factor(Neighborhood))%>%
+  mutate(ReportMonthYear = mdy(ReportMonthYear))%>%
+  mutate_if(is.character, as.double)%>%
+  separate("ReportMonthYear", c("Year", "Month", "Day"), sep = "-")%>%
+  select(-Day)%>%
+  mutate(date= as.yearmon(paste(Year, Month), "%Y %m"))
+
+calls <- rbind(dispatch_calls2022, dispatch_calls2023)
 
 
-colnames(crime)[13] <- "Hour"
 
-source("heatmap.Rmd")
+# Prepare mtcars and use plotly to make donut plot
+calls$FinalCallCategory <- sapply(strsplit(rownames(calls), " "), "[[", 1)
 
-ui <- fluidPage(
-  theme = shinytheme("flatly"),
-  titlePanel("Crime Reported in Portland, OR"),
+df <- calls
+df <- df %>% group_by(FinalCallCategory)
+df <- df %>% summarize(count = n())
+fig <- df %>% plot_ly(labels = ~FinalCallCategory, values = ~count)
+fig <- fig %>% add_pie(hole = 0.6)
+fig <- fig %>% layout(title = "Donut charts using Plotly",  showlegend = F,
+                      xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                      yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+
+#Simple Shiny dashboard with first box as mtcars data table, second box as the donut plot ('fig')
+body <- dashboardBody(
   
-  mainPanel(
-    tabsetPanel(
-      type = "tabs",
-      tabPanel(
-        title = "Table",
-        icon = icon("table"),
-        tags$br(),
-        DT::DTOutput("table")
-      ),
+  fluidRow(
     
-    tabPanel("Calls", 
-             plotOutput("plot")
+    box(
+      title = "Title 1", width = 5, solidHeader = TRUE, status = "primary",
+      DTOutput('table')
     ),
-    checkboxInput(
-      inputId = "themeToggle",
-      label = icon("sun")
+    box(
+      title = "Title 2", width = 5, solidHeader = TRUE, status = "warning", 
+      fig
     )
   )
-  )
+  
   
 )
 
-server <- function(input, output) {
-  output$table <- DT::renderDT({
-    crime
-  })
+# We'll save it in a variable `ui` so that we can preview it in the console
+ui <- dashboardPage(
+  dashboardHeader(title = "Row layout"),
+  dashboardSidebar(disable=TRUE),
+  body
+)
 
-  
-}
-
-shinyApp(ui, server)
+# Preview the UI in the console
+shinyApp(ui = ui, server = function(input, output) {
+  output$table <- renderDT(calls,
+                           filter = "top",
+                           options = list(
+                             pageLength = 5
+                           )
+  )
+})

@@ -1,6 +1,5 @@
 "0","## Graph- Year selection"
 "0",""
-"0","heatmap<- function(heatmap){"
 "0",""
 "0","day_weekp <- ggplot(day_week) +"
 "0","  aes(x = weekday, y = time) +"
@@ -50,5 +49,3 @@
 "0","  coord_flip()"
 "0",""
 "0","day_weekp"
-"0",""
-"0","}"
