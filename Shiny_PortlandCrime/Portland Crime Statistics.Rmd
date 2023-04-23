@@ -138,6 +138,50 @@ day_weekp
 }
 ```
 
+```{r}
+dayweek <- crime %>%
+  filter(Year== 2023)%>% select(Year, weekdaynum, time, OffenseCategory) %>% 
+  mutate(weekday= as.factor(weekdaynum))%>%
+  mutate(OccurTime= as.factor(time))%>%
+  group_by(time, weekday, OffenseCategory)%>%
+    summarise(count = n()) %>%
+    arrange(desc(count))%>%
+  na.omit()
+
+dayweekp <- ggplot(dayweek %>% filter(OffenseCategory == "Larceny Offenses")) +
+  aes(x = weekday, y = time) +
+  geom_tile(aes(fill=count), colour = "white") +
+  scale_fill_distiller(name= "# Offenses", palette = "YlGnBu", direction = 1) +
+  scale_x_discrete(breaks = c("0", "1", "2", "3", "4", "5", "6"),
+                   label = c("Sunday", "Monday", "Tuesday", "Wednesday","Thursday", "Friday", "Saturday"), expand=c(0,0))+
+  
+  labs(title="Number of Cases Reported in Portland, OR during January & February 2023",
+       x="", 
+       y="Hour")+
+  theme_classic()+
+  
+  theme(
+      
+    axis.line=element_blank(),                                               
+    axis.ticks=element_line(size=0.4),
+    axis.text = element_text(size= 10, color= "#1e1b25"),
+    axis.line.x = element_line(color= "#1e1b25" ),
+    
+    plot.background=element_blank(),         
+    plot.title = element_text(size =11, hjust = 0, color= "#1e1b25", face = "bold"),
+    panel.grid = element_blank(),
+    
+    legend.position = "bottom",
+    legend.title = element_text(size= 8),
+    legend.margin=margin(grid::unit(0,"cm")),
+    legend.key.width=grid::unit(2,"cm"),
+    legend.key.height=grid::unit(0.2,"cm")
+)+
+  coord_flip() 
+
+day_weekp
+
+```
 
 
 
@@ -170,8 +214,8 @@ dispatch_calls2022 <-read.csv("https://raw.githubusercontent.com/karolo89/Raw_Da
 
 calls <- rbind(dispatch_calls2022, dispatch_calls2023)
 
-
 ```
+
 ```{r}
 month_call <- calls %>%
   group_by(date, Year, FinalCallGroup)%>%
@@ -215,10 +259,6 @@ font_add_google(name = "Bungee Shade", family = "bungee")
 font_add_google(name = "Dosis", family = "dosis")
 showtext_auto()
 
-text_calls <- glue::glue("Most of the dispatched calls for service in the last year <br>
-                         are related to disturbances or other problems that requiere a police response
-                         to assess and resolve the situation")
-
 group_month <- calls%>%
   group_by(date, FinalCallGroup)%>%
   summarise(num= n())%>%
@@ -226,7 +266,7 @@ group_month <- calls%>%
     arrange(desc(num))%>%
   top_n(5)
 
-ggplot(group_month, aes(date, num, colour= FinalCallGroup, group= FinalCallGroup))+
+line_calls <- ggplot(group_month, aes(date, num, colour= FinalCallGroup, group= FinalCallGroup))+
   geom_line(aes(linetype=FinalCallGroup)) +
   geom_point(size = 2) +
     scale_color_viridis_d()+
@@ -241,9 +281,9 @@ ggplot(group_month, aes(date, num, colour= FinalCallGroup, group= FinalCallGroup
   theme(
         legend.title = element_blank(), 
         legend.position = "bottom",
-        panel.background = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"), 
-        plot.background = element_rect(fill = "#FAFAFA", colour = "#FAFAFA"), 
-        legend.background = element_rect(fill = "transparent", colour = "transparent"), 
+           panel.background = element_rect(colour = "#fdf8ec", fill = "#fdf8ec"),
+         plot.background = element_rect(colour = "#fdf8ec", fill = "#fdf8ec"),
+        legend.background = element_rect(colour = "#fdf8ec", fill = "#fdf8ec"), 
         legend.key = element_rect(fill = "transparent", colour = "transparent"),
         plot.title = element_text(family = "cherry", hjust = 0.5, size = 14, face = "bold", 
                                   margin = margin(t = 10, b = 10)),
@@ -253,6 +293,7 @@ ggplot(group_month, aes(date, num, colour= FinalCallGroup, group= FinalCallGroup
         panel.grid.major = element_line(colour = "#DEDEDE"), 
         panel.grid.minor = element_blank())
 
+line_calls
 ```
 
 

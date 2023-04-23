@@ -1,0 +1,27 @@
+{
+    "id": "0B723AF8",
+    "path": "C:/Users/karol/Desktop/ShinyApp_PortlandCrime/Shiny_PortlandCrime/Portland Crime Statistics.Rmd",
+    "project_path": "Portland Crime Statistics.Rmd",
+    "type": "r_markdown",
+    "hash": "370193198",
+    "contents": "",
+    "dirty": false,
+    "created": 1682217327864.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "last_setup_crc32": "312fcc38ae276467",
+        "cursorPosition": "148,11",
+        "scrollLine": "138"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1682223503,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1682223503230,
+    "read_only": false,
+    "read_only_alternatives": []
+}

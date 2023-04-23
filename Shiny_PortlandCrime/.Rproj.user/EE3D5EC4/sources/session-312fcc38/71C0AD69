@@ -1,0 +1,26 @@
+{
+    "id": "71C0AD69",
+    "path": "C:/Users/karol/Desktop/ShinyApp_PortlandCrime/Shiny_PortlandCrime/heatmap.Rmd",
+    "project_path": "heatmap.Rmd",
+    "type": "r_markdown",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1682223343800.0,
+    "source_on_save": true,
+    "relative_order": 6,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "14,10",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1682223361,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1682223361215,
+    "read_only": false,
+    "read_only_alternatives": []
+}
